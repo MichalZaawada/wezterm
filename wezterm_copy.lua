@@ -1,89 +1,46 @@
+-- Pull in the wezterm API
 local wezterm = require("wezterm")
 local act = wezterm.action
+-- This will hold the configuration.
 local config = wezterm.config_builder()
-local platform = wezterm.target_triple
 
-if platform == "x86_64-pc-windows-msvc" then
-	config.default_prog = {
-		"C:\\Program Files\\PowerShell\\7\\pwsh.exe",
-		"-NoLogo",
-		"-ExecutionPolicy",
-		"RemoteSigned",
-	}
-end
+-- This is where you actually apply your config choices
 
--- wezterm.on("update-right-status", function(window)
--- 	local tab = window:active_tab()
--- 	if tab == nil then
--- 		return
--- 	end
---
--- 	local active_pane = window:active_pane()
--- 	local panes = tab:panes()
--- 	for index, pane in ipairs(panes) do
--- 		wezterm.log_info("Pane " .. index .. ":")
--- 		wezterm.log_info("  ID: " .. tostring(pane:pane_id()))
--- 		wezterm.log_info("  Process: " .. tostring(pane:get_foreground_process_name()))
--- 		wezterm.log_info("  Title: " .. tostring(pane:get_title()))
--- 		wezterm.log_info("  Directory: " .. tostring(pane:get_current_working_dir()))
--- 		wezterm.log_info("  Is Active: " .. tostring(pane:pane_id() == active_pane:pane_id()))
--- 	end
--- end)
+-- For example, changing the color scheme:
 
+-- config.color_scheme = "Jellybeans"
+-- config.color_scheme = "Papercolor Dark"
+-- config.color_scheme = "Papercolor Dark (Gogh)"
+config.color_scheme = "Jellybeans (Gogh)"
+
+-- config.font = wezterm.font("Iosevka Nerd Font Mono")
+config.font = wezterm.font_with_fallback({
+	{ family = "Iosevka Nerd Font Mono" },
+	{ family = "JetBrains Mono" },
+})
 config.font_size = 13
-config.tab_max_width = 50
+
 -- config.window_background_opacity = 0.85
--- config.window_decorations = "RESIZE"
+config.window_decorations = "RESIZE"
 config.window_close_confirmation = "AlwaysPrompt"
 -- config.enable_tab_bar = false
 config.use_fancy_tab_bar = false
-config.tab_bar_at_bottom = true
 config.status_update_interval = 1000
+config.leader = { key = " ", mods = "CTRL" }
 config.inactive_pane_hsb = {
 	saturation = 0.5,
 	brightness = 0.8,
 }
 config.prefer_egl = true
 
-config.color_scheme = "Jellybeans (Gogh)"
-config.colors = {
-	tab_bar = {
-		background = "#202020",
-		new_tab = {
-			bg_color = "#202020",
-			fg_color = "#808080",
-		},
-		active_tab = {
-			-- underline = "Single",
-			bg_color = "#000000",
-			fg_color = "#FFFFFF",
-		},
-		new_tab_hover = {
-			bg_color = "#3b3052",
-			fg_color = "#909090",
-			italic = false,
-		},
-		inactive_tab = {
-			bg_color = "#202020",
-			fg_color = "#909090",
-		},
-		inactive_tab_hover = {
-			bg_color = "#3b3052",
-			fg_color = "#909090",
-			italic = false,
-		},
-	},
-}
-config.font = wezterm.font_with_fallback({
-	{ family = "Iosevka Nerd Font Mono" },
-	{ family = "JetBrains Mono" },
-})
-
-config.leader = { key = " ", mods = "CTRL" }
+if wezterm.target_triple == "x86_64-pc-windows-msvc" then
+	config.default_prog = { "C:\\Program Files\\PowerShell\\7\\pwsh.exe", "-NoLogo" }
+end
 config.keys = {
 	-- paste from the clipboard
 	-- { key = "v", mods = "CTRL", action = act.PasteFrom("Clipboard") },
 	-- { key = "c", mods = "CTRL", action = act.CopyTo("Clipboard") },
+	{ key = "a", mods = "CTRL|SHIFT", action = act.ShowDebugOverlay },
 	{ key = "c", mods = "CTRL|SHIFT", action = act.ActivateCopyMode },
 
 	-- pane
@@ -103,7 +60,6 @@ config.keys = {
 
 	{ key = "r", mods = "LEADER", action = act.ActivateKeyTable({ name = "resize_pane", one_shot = false }) },
 	{ key = "m", mods = "LEADER", action = act.ActivateKeyTable({ name = "movement_pane", one_shot = false }) },
-	{ key = "l", mods = "LEADER", action = act.ShowDebugOverlay },
 	-- { key = "e", mods = "LEADER", action = act.ShowTabNavigator },
 	-- { key = "t", mods = "LEADER", action = act.SpawnTab("CurrentPaneDomain") },
 	-- { key = "q", mods = "LEADER", action = wezterm.action.CloseCurrentTab({ confirm = true }) },
@@ -129,8 +85,10 @@ config.key_tables = {
 }
 
 wezterm.on("update-right-status", function(window, pane)
+	-- Workspace name
 	local stat = window:active_workspace()
-
+	-- It's a little silly to have workspace name all the time
+	-- Utilize this to display LDR or current key table name
 	if window:active_key_table() then
 		stat = window:active_key_table()
 	end
@@ -138,56 +96,55 @@ wezterm.on("update-right-status", function(window, pane)
 		stat = "leader"
 	end
 
+	-- Current working directory
+	-- local basename = function(s)
+	-- 	return string.gsub(s, "(.*[/\\])(.*)", "%2")
+	-- end
+
+	-- wezterm.log_info(pane:get_current_working_dir())
+	-- basename()
+	-- local cwd = pane:get_current_working_dir()
+	-- Current command
+	-- local cmd = basename(pane:get_foreground_process_name())
+
 	-- Time
 	-- local time = wezterm.strftime("%H:%M")
 
 	-- Let's add color to one of the components
 	window:set_right_status(wezterm.format({
+		-- Wezterm has a built-in nerd fonts
 		{ Text = wezterm.nerdfonts.oct_table .. " " .. stat },
+		-- { Text = " | " },
+		-- { Text = wezterm.nerdfonts.md_folder .. "  " .. cwd },
+		-- { Text = " | " },
+		-- { Foreground = { Color = "FFB86C" } },
+		-- { Text = wezterm.nerdfonts.fa_code .. "  " .. cmd },
+		-- "ResetAttributes",
 		-- { Text = " | " },
 		-- { Text = wezterm.nerdfonts.md_clock .. "  " .. time },
 		-- { Text = " |" },
 	}))
 end)
 
-local basename = function(s)
-	return string.gsub(s, "(.*[/\\])(.*)", "%2")
-end
-
-local tab_title = function(tab_info)
-	local active_pane = tab_info.active_pane
-	local current_dir = basename(tostring(active_pane.current_working_dir))
-
-	local tab_title = string.lower(active_pane.title)
-	local tab_index = tostring(tab_info.tab_index + 1)
-	local icon = wezterm.nerdfonts.cod_terminal
-	local text_color = "White"
-
-	if string.find(tab_title, "nvim") then
-		icon = wezterm.nerdfonts.custom_neovim
-		text_color = "#4ADE80"
-	elseif string.find(tab_title, "lazygit") then
-		icon = wezterm.nerdfonts.fa_git
-		text_color = "#F05033"
+local function tab_title(tab_info)
+	local title = tostring(tab_info.tab_index + 1)
+	-- if the tab title is explicitly set, take that
+	if title and #title > 0 then
+		return " " .. title .. " "
 	end
-
-	if tab_index and #tab_index > 0 then
-		return " " .. tab_index .. ": " .. current_dir .. " " .. icon .. " ", text_color
-	end
-
+	-- Otherwise, use the title from the active pane
+	-- in that tab
 	return tab_info.active_pane.title
 end
 
 wezterm.on("format-tab-title", function(tab, _, _, _, _, _)
-	local title, text_color = tab_title(tab)
+	local title = tab_title(tab)
 	if tab.is_active then
 		return {
-			-- { Background = { Color = "866CBA" } },
-			{ Foreground = { Color = text_color } },
+			{ Background = { Color = "#866CBA" } },
 			{ Text = title },
 		}
 	end
 	return title
 end)
-
 return config
