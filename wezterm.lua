@@ -12,23 +12,23 @@ if platform == "x86_64-pc-windows-msvc" then
 	}
 end
 
--- wezterm.on("update-right-status", function(window)
--- 	local tab = window:active_tab()
--- 	if tab == nil then
--- 		return
--- 	end
---
--- 	local active_pane = window:active_pane()
--- 	local panes = tab:panes()
--- 	for index, pane in ipairs(panes) do
--- 		wezterm.log_info("Pane " .. index .. ":")
--- 		wezterm.log_info("  ID: " .. tostring(pane:pane_id()))
--- 		wezterm.log_info("  Process: " .. tostring(pane:get_foreground_process_name()))
--- 		wezterm.log_info("  Title: " .. tostring(pane:get_title()))
--- 		wezterm.log_info("  Directory: " .. tostring(pane:get_current_working_dir()))
--- 		wezterm.log_info("  Is Active: " .. tostring(pane:pane_id() == active_pane:pane_id()))
--- 	end
--- end)
+wezterm.on("update-right-status", function(window)
+	local tab = window:active_tab()
+	if tab == nil then
+		return
+	end
+
+	local active_pane = window:active_pane()
+	local panes = tab:panes()
+	for index, pane in ipairs(panes) do
+		wezterm.log_info("Pane " .. index .. ":")
+		wezterm.log_info("  ID: " .. tostring(pane:pane_id()))
+		wezterm.log_info("  Process: " .. tostring(pane:get_foreground_process_name()))
+		wezterm.log_info("  Title: " .. tostring(pane:get_title()))
+		wezterm.log_info("  Directory: " .. tostring(pane:get_current_working_dir()))
+		wezterm.log_info("  Is Active: " .. tostring(pane:pane_id() == active_pane:pane_id()))
+	end
+end)
 
 config.font_size = 13
 config.tab_max_width = 50
@@ -45,6 +45,10 @@ config.inactive_pane_hsb = {
 }
 config.prefer_egl = true
 
+config.window_padding = {
+	bottom = 0,
+}
+
 config.color_scheme = "Jellybeans (Gogh)"
 config.colors = {
 	tab_bar = {
@@ -55,7 +59,7 @@ config.colors = {
 		},
 		active_tab = {
 			-- underline = "Single",
-			bg_color = "#000000",
+			bg_color = "#0C0C0C",
 			fg_color = "#FFFFFF",
 		},
 		new_tab_hover = {
@@ -158,6 +162,7 @@ local tab_title = function(tab_info)
 	local active_pane = tab_info.active_pane
 	local current_dir = basename(tostring(active_pane.current_working_dir))
 
+	local active_procces = active_pane.foreground_process_name
 	local tab_title = string.lower(active_pane.title)
 	local tab_index = tostring(tab_info.tab_index + 1)
 	local icon = wezterm.nerdfonts.cod_terminal
@@ -169,6 +174,12 @@ local tab_title = function(tab_info)
 	elseif string.find(tab_title, "lazygit") then
 		icon = wezterm.nerdfonts.fa_git
 		text_color = "#F05033"
+	elseif string.find(active_procces, "node") then
+		icon = wezterm.nerdfonts.dev_nodejs_small
+		text_color = "#43853D"
+	elseif string.find(active_procces, "net") then
+		icon = wezterm.nerdfonts.md_dot_net
+		text_color = "#512BD4"
 	end
 
 	if tab_index and #tab_index > 0 then
