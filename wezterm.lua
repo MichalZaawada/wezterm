@@ -14,7 +14,7 @@ if is_win then
 	}
 end
 
--- debug
+-- Debug
 wezterm.on("update-right-status", function(window)
 	local tab = window:active_tab()
 	if tab == nil then
@@ -52,8 +52,24 @@ config.window_padding = {
 	bottom = 0,
 }
 
-config.color_scheme = "Jellybeans (Gogh)"
+-- config.color_scheme = "Jellybeans (Gogh)"
 config.colors = {
+	foreground = "#ffffff",
+	background = "#121212",
+
+	cursor_bg = "#ffffff",
+	cursor_fg = "#121212",
+	cursor_border = "#ffffff",
+
+	selection_fg = "#ffffff",
+	selection_bg = "#3c4048",
+
+	scrollbar_thumb = "#121212",
+	split = "#121212",
+
+	ansi = { "#16181a", "#ff6e5e", "#5eff6c", "#f1ff5e", "#5ea1ff", "#bd5eff", "#5ef1ff", "#ffffff" },
+	brights = { "#3c4048", "#ff6e5e", "#5eff6c", "#f1ff5e", "#5ea1ff", "#bd5eff", "#5ef1ff", "#ffffff" },
+	indexed = { [16] = "#ffbd5e", [17] = "#ff6e5e" },
 	tab_bar = {
 		background = "#202020",
 		new_tab = {
@@ -140,8 +156,7 @@ wezterm.on("update-right-status", function(window, pane)
 
 	if window:active_key_table() then
 		stat = window:active_key_table()
-	end
-	if window:leader_is_active() then
+	elseif window:leader_is_active() then
 		stat = "leader"
 	end
 
@@ -149,10 +164,9 @@ wezterm.on("update-right-status", function(window, pane)
 	-- local time = wezterm.strftime("%H:%M")
 
 	window:set_right_status(wezterm.format({
-		{ Text = wezterm.nerdfonts.oct_table .. " " .. stat },
+		-- { Text = wezterm.nerdfonts.md_clock .. " " .. time },
 		-- { Text = " | " },
-		-- { Text = wezterm.nerdfonts.md_clock .. "  " .. time },
-		-- { Text = " |" },
+		{ Text = wezterm.nerdfonts.oct_table .. " " .. stat },
 	}))
 end)
 
