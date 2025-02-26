@@ -2,9 +2,11 @@ local wezterm = require("wezterm")
 local act = wezterm.action
 local config = wezterm.config_builder()
 local platform = wezterm.target_triple
-local is_win = platform == "x86_64-pc-windows-msvc"
 
-if is_win then
+IS_WIN = platform == "x86_64-pc-windows-msvc"
+IS_LINUX = platform == "x86_64-unknown-linux-gnu"
+
+if IS_WIN then
 	require("win")
 	config.default_prog = {
 		"C:\\Program Files\\PowerShell\\7\\pwsh.exe",
@@ -12,6 +14,9 @@ if is_win then
 		"-ExecutionPolicy",
 		"RemoteSigned",
 	}
+end
+if IS_LINUX then
+	require("linux")
 end
 
 -- Debug

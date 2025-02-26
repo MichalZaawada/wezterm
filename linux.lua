@@ -1,7 +1,7 @@
 local wezterm = require("wezterm")
 
 local basename = function(s)
-	return string.gsub(s, "(.*[/\\])(.*)", "%2")
+	return string.gsub(s:sub(1, -2), "(.*[/\\])(.*)", "%2")
 end
 local tab_title = function(tab_info)
 	local active_pane = tab_info.active_pane
