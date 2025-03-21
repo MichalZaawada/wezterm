@@ -5,6 +5,7 @@ local platform = wezterm.target_triple
 
 IS_WIN = platform == "x86_64-pc-windows-msvc"
 IS_LINUX = platform == "x86_64-unknown-linux-gnu"
+IS_MAC = platform == "aarch64-apple-darwin"
 
 if IS_WIN then
 	require("win")
@@ -14,8 +15,7 @@ if IS_WIN then
 		"-ExecutionPolicy",
 		"RemoteSigned",
 	}
-end
-if IS_LINUX then
+elseif IS_LINUX or IS_MAC then
 	require("linux")
 end
 
