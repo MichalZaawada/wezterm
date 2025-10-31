@@ -103,6 +103,7 @@ config.colors = {
 	},
 }
 config.font = wezterm.font_with_fallback({
+	{ family = "ZedMono Nerd Font" },
 	{ family = "Iosevka Nerd Font Mono" },
 	{ family = "JetBrains Mono" },
 })
